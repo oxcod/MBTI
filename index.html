@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MBTI精准测试 | 发现真实的你</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+            --spacing-xl: 48px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+            cursor: default;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: var(--spacing-lg);
+            padding-top: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-lg);
+            position: relative;
+        }
+        
+        .page-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #ffeaa7 50%, #fab1a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            z-index: 1001;
+            letter-spacing: 2.5px;
+            animation: titleGlow 0.8s ease-out;
+            padding: 10px 20px;
+            border-radius: 24px;
+            background-color: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes titleGlow {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+        }
+        
+        .progress-indicator {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--glass-shadow);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            animation: slideInDown 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .progress-dots {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+        
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .progress-dot.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.6);
+            transform: scale(1.2);
+        }
+        
+        .progress-dot.completed {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            transform: scale(1.1);
+            position: relative;
+        }
+        
+        .progress-dot.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 8px;
+            font-weight: bold;
+        }
+        
+        .progress-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 1px;
+        }
+        
+        #current {
+            color: #4facfe;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .question {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--glass-shadow);
+            padding: var(--spacing-xl);
+            text-align: center;
+            width: 100%;
+            animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .question.hidden { 
+            display: none; 
+        }
+        
+        .question h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            animation: slideInDown 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
+        }
+        
+        .question p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: var(--spacing-2xl);
+            animation: fadeIn 0.6s ease-out 0.4s both;
+            text-align: center;
+        }
+        
+        .option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            animation: slideInLeft 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.6s both;
+            font-size: 1.1rem;
+        }
+        
+        .option:nth-child(even) {
+            animation-delay: 0.8s;
+        }
+        
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .option:hover::before {
+            left: 100%;
+        }
+        
+        .option:active {
+            transform: translateY(-2px) scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .result {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--glass-shadow);
+            padding: var(--spacing-xl);
+            text-align: center;
+            width: 100%;
+            animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .result.hidden { 
+            display: none; 
+        }
+        
+        .result h1 {
+            display: inline-block;
+            padding: var(--spacing-md) var(--spacing-xl);
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 16px 64px rgba(0, 0, 0, 0.16);
+            letter-spacing: 4px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .result h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .result p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+            margin-top: var(--spacing-lg);
+        }
+        
+        .restart-btn, .share-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            flex: 1;
+            max-width: 180px;
+        }
+        
+        .restart-btn:hover, .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-screen {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--glass-shadow);
+            padding: var(--spacing-xl);
+            text-align: center;
+            width: 100%;
+            animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .card-screen.hidden {
+            display: none;
+        }
+        
+        .card-preview {
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .share-card {
+            width: 320px;
+            height: 480px;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+        
+        .card-header {
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        }
+        
+        .card-type {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .card-description {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .card-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .keyword-tag {
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .card-traits {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .trait-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .trait-icon {
+            font-size: 0.9rem;
+        }
+        
+        .trait-text {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .card-button-group {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+            margin-top: var(--spacing-lg);
+        }
+        
+        .back-btn, .download-btn {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            flex: 1;
+            max-width: 180px;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+        
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 16px 64px rgba(0, 0, 0, 0.16), 0 0 20px rgba(79, 172, 254, 0.3); }
+            to { box-shadow: 0 16px 64px rgba(0, 0, 0, 0.16), 0 0 30px rgba(79, 172, 254, 0.6); }
+        }
+        
+        @media (max-width: 480px) {
+            .container { padding: var(--spacing-md); padding-top: 80px; gap: var(--spacing-lg); }
+            .page-title { font-size: 1.8rem; top: 16px; letter-spacing: 2px; padding: 8px 16px; }
+            .progress-indicator { padding: var(--spacing-sm) var(--spacing-md); gap: var(--spacing-sm); }
+            .progress-dot { width: 10px; height: 10px; }
+            .progress-text { font-size: 0.8rem; }
+            .question { padding: var(--spacing-lg); }
+            .question h2 { font-size: 1.5rem; }
+            .result h1 { font-size: 2.5rem; padding: var(--spacing-sm) var(--spacing-lg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Page Title -->
+        <div class="page-title">4题MBTI</div>
+        
+        <div class="progress-indicator">
+            <div class="progress-dots">
+                <div class="progress-dot active" id="dot0"></div>
+                <div class="progress-dot" id="dot1"></div>
+                <div class="progress-dot" id="dot2"></div>
+                <div class="progress-dot" id="dot3"></div>
+            </div>
+            <div class="progress-text">
+                <span id="current">1</span> / 4
+            </div>
+        </div>
+        
+        <div class="question" id="q0">
+            <h2>⚡️ 社交电量</h2>
+            <p>哪种情况让你更有活力？</p>
+            <div class="option" onclick="answer('E')">👥 和朋友在一起 - 社交让我充满能量</div>
+            <div class="option" onclick="answer('I')">🏠 一个人充电 - 独处让我恢复活力</div>
+        </div>
+        
+        <div class="question hidden" id="q1">
+            <h2>🌟 思维模式</h2>
+            <p>你更倾向于哪种思考方式？</p>
+            <div class="option" onclick="answer('S')">🎯 脚踏实地 - 注重事实和细节</div>
+            <div class="option" onclick="answer('N')">💫 天马行空 - 喜欢抽象和可能性</div>
+        </div>
+        
+        <div class="question hidden" id="q2">
+            <h2>💝 决策方式</h2>
+            <p>做重要决定时，你更依赖什么？</p>
+            <div class="option" onclick="answer('T')">🧮 理性分析 - 逻辑和客观事实</div>
+            <div class="option" onclick="answer('F')">❤️ 感性直觉 - 情感和价值观</div>
+        </div>
+        
+        <div class="question hidden" id="q3">
+            <h2>🎯 行动风格</h2>
+            <p>面对新任务，你的习惯是？</p>
+            <div class="option" onclick="answer('J')">📋 计划控 - 先规划再行动</div>
+            <div class="option" onclick="answer('P')">🌊 随心所欲 - 边做边想灵活应对</div>
+        </div>
+        
+        <div class="result hidden" id="result">
+            <h1 id="mbti-type">ENFP</h1>
+            <h2 id="mbti-title">活力四射的灵感家</h2>
+            <p id="mbti-desc">你是天生的激励者和创新者</p>
+            <div class="button-group">
+                <button onclick="generateCard()" class="share-btn">分享卡片</button>
+                <button onclick="restart()" class="restart-btn">重新测试</button>
+            </div>
+        </div>
+        
+        <div class="card-screen hidden" id="card-screen">
+            <div class="card-preview" id="card-preview">
+                <!-- Card will be generated here -->
+            </div>
+            
+            <div class="card-button-group">
+                <button onclick="downloadCard()" class="download-btn">保存卡片</button>
+                <button onclick="backToResult()" class="back-btn">返回结果</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQ = 0;
+        let answers = [];
+        
+        const mbtiTypes = {
+            'ENFP': {
+                title: '活力四射的灵感家',
+                subtitle: '你是天生的激励者和创新者',
+                description: '热情洋溢，富有创造力，总能在生活中发现新的可能性。你善于激励他人，是团队中的正能量担当。',
+                traits: {
+                    energy: '外向型 - 从社交中获得能量',
+                    info: '直觉型 - 关注可能性和未来',
+                    decision: '情感型 - 重视价值观和人际关系',
+                    lifestyle: '知觉型 - 灵活适应，保持开放'
+                },
+                color: 'linear-gradient(135deg, #ff9a56 0%, #ff6b95 50%, #c44569 100%)',
+                keywords: ['创新者', '激励者', '梦想家', '社交达人']
+            },
+            'ENFJ': {
+                title: '天生的领导者',
+                subtitle: '你是有感染力的激励大师',
+                description: '富有魅力的天然领袖，善于发现他人的潜力并激发最好的一面。你关心他人的成长和福祉。',
+                traits: {
+                    energy: '外向型 - 从社交中获得能量',
+                    info: '直觉型 - 关注可能性和未来',
+                    decision: '情感型 - 重视价值观和人际关系',
+                    lifestyle: '判断型 - 喜欢有序和计划'
+                },
+                color: 'linear-gradient(135deg, #f093fb 0%, #a855f7 50%, #7c3aed 100%)',
+                keywords: ['领导者', '导师', '激励师', '成长教练']
+            },
+            'ENTP': {
+                title: '机智的辩论家',
+                subtitle: '你是充满智慧的创新思考者',
+                description: '聪明机智，喜欢挑战传统思维。你总能提出新颖的想法，擅长从不同角度分析问题。',
+                traits: {
+                    energy: '外向型 - 从社交中获得能量',
+                    info: '直觉型 - 关注可能性和未来',
+                    decision: '思维型 - 重视逻辑和客观分析',
+                    lifestyle: '知觉型 - 灵活适应，保持开放'
+                },
+                color: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%)',
+                keywords: ['辩论家', '创新者', '智者', '思想家']
+            },
+            'ENTJ': {
+                title: '果断的指挥官',
+                subtitle: '你是天生的战略领导者',
+                description: '果敢决断的天然领袖，具有强大的组织能力和战略眼光。你善于制定长远计划并推动执行。',
+                traits: {
+                    energy: '外向型 - 从社交中获得能量',
+                    info: '直觉型 - 关注可能性和未来',
+                    decision: '思维型 - 重视逻辑和客观分析',
+                    lifestyle: '判断型 - 喜欢有序和计划'
+                },
+                color: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%)',
+                keywords: ['指挥官', '战略家', '领导者', '执行官']
+            },
+            'ESFP': {
+                title: '自由奔放的表演者',
+                subtitle: '你是充满活力的生活艺术家',
+                description: '热情开朗，享受当下的每一刻。你善于与人建立联系，总能为周围带来欢乐和正能量。',
+                traits: {
+                    energy: '外向型 - 从社交中获得能量',
+                    info: '感觉型 - 关注当下和具体细节',
+                    decision: '情感型 - 重视价值观和人际关系',
+                    lifestyle: '知觉型 - 灵活适应，保持开放'
+                },
+                color: 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)',
+                keywords: ['表演者', '娱乐家', '自由者', '社交明星']
+            },
+            'ESFJ': {
+                title: '热心的领事官',
+                subtitle: '你是温暖的人际关系专家',
+                description: '关爱他人，善于营造和谐的氛围。你注重传统价值，总是愿意为他人提供帮助和支持。',
+                traits: {
+                    energy: '外向型 - 从社交中获得能量',
+                    info: '感觉型 - 关注当下和具体细节',
+                    decision: '情感型 - 重视价值观和人际关系',
+                    lifestyle: '判断型 - 喜欢有序和计划'
+                },
+                color: 'linear-gradient(135deg, #ec4899 0%, #db2777 50%, #be185d 100%)',
+                keywords: ['领事官', '照顾者', '协调者', '团队润滑剂']
+            },
+            'ESTP': {
+                title: '活力四射的企业家',
+                subtitle: '你是行动派的冒险家',
+                description: '精力充沛，勇于冒险。你善于抓住机遇，在压力下表现出色，是天生的问题解决者。',
+                traits: {
+                    energy: '外向型 - 从社交中获得能量',
+                    info: '感觉型 - 关注当下和具体细节',
+                    decision: '思维型 - 重视逻辑和客观分析',
+                    lifestyle: '知觉型 - 灵活适应，保持开放'
+                },
+                color: 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)',
+                keywords: ['企业家', '冒险家', '实践者', '机会捕手']
+            },
+            'ESTJ': {
+                title: '严谨的总经理',
+                subtitle: '你是可靠的组织管理者',
+                description: '负责任且高效，善于组织和管理。你重视传统和秩序，总能确保事情按计划进行。',
+                traits: {
+                    energy: '外向型 - 从社交中获得能量',
+                    info: '感觉型 - 关注当下和具体细节',
+                    decision: '思维型 - 重视逻辑和客观分析',
+                    lifestyle: '判断型 - 喜欢有序和计划'
+                },
+                color: 'linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%)',
+                keywords: ['总经理', '管理者', '组织者', '执行专家']
+            },
+            'INFP': {
+                title: '理想主义的调停者',
+                subtitle: '你是充满创意的梦想追求者',
+                description: '内心丰富，追求理想和真实。你富有同情心和创造力，总是在寻找让世界变得更好的方式。',
+                traits: {
+                    energy: '内向型 - 从独处中获得能量',
+                    info: '直觉型 - 关注可能性和未来',
+                    decision: '情感型 - 重视价值观和人际关系',
+                    lifestyle: '知觉型 - 灵活适应，保持开放'
+                },
+                color: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%)',
+                keywords: ['调停者', '理想主义者', '创意家', '价值守护者']
+            },
+            'INFJ': {
+                title: '睿智的提倡者',
+                subtitle: '你是富有洞察力的理想主义者',
+                description: '深刻而富有洞察力，能够理解复杂的人性。你追求有意义的生活，致力于帮助他人实现潜能。',
+                traits: {
+                    energy: '内向型 - 从独处中获得能量',
+                    info: '直觉型 - 关注可能性和未来',
+                    decision: '情感型 - 重视价值观和人际关系',
+                    lifestyle: '判断型 - 喜欢有序和计划'
+                },
+                color: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)',
+                keywords: ['提倡者', '洞察者', '理想主义者', '灵魂导师']
+            },
+            'INTP': {
+                title: '逻辑学家思想家',
+                subtitle: '你是追求真理的理论建构者',
+                description: '喜欢思考和分析，对知识充满渴望。你善于发现模式和联系，总是在寻求理解事物的本质。',
+                traits: {
+                    energy: '内向型 - 从独处中获得能量',
+                    info: '直觉型 - 关注可能性和未来',
+                    decision: '思维型 - 重视逻辑和客观分析',
+                    lifestyle: '知觉型 - 灵活适应，保持开放'
+                },
+                color: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)',
+                keywords: ['逻辑学家', '思想家', '理论家', '知识探索者']
+            },
+            'INTJ': {
+                title: '独立的建筑师',
+                subtitle: '你是战略性的远见卓识者',
+                description: '独立思考，具有强烈的洞察力和决心。你善于制定长远战略，总能看到别人看不到的可能性。',
+                traits: {
+                    energy: '内向型 - 从独处中获得能量',
+                    info: '直觉型 - 关注可能性和未来',
+                    decision: '思维型 - 重视逻辑和客观分析',
+                    lifestyle: '判断型 - 喜欢有序和计划'
+                },
+                color: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%)',
+                keywords: ['建筑师', '战略家', '远见者', '系统思考者']
+            },
+            'ISFP': {
+                title: '温和的冒险家',
+                subtitle: '你是敏感的艺术创作者',
+                description: '温和而富有艺术气质，对美有敏锐的感知。你重视个人价值观，喜欢以自己的方式探索世界。',
+                traits: {
+                    energy: '内向型 - 从独处中获得能量',
+                    info: '感觉型 - 关注当下和具体细节',
+                    decision: '情感型 - 重视价值观和人际关系',
+                    lifestyle: '知觉型 - 灵活适应，保持开放'
+                },
+                color: 'linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #db2777 100%)',
+                keywords: ['冒险家', '艺术家', '美学家', '价值坚守者']
+            },
+            'ISFJ': {
+                title: '守护者保护人',
+                subtitle: '你是细心的照顾者',
+                description: '细心体贴，总是为他人着想。你重视传统和稳定，善于创造温暖和谐的环境。',
+                traits: {
+                    energy: '内向型 - 从独处中获得能量',
+                    info: '感觉型 - 关注当下和具体细节',
+                    decision: '情感型 - 重视价值观和人际关系',
+                    lifestyle: '判断型 - 喜欢有序和计划'
+                },
+                color: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%)',
+                keywords: ['守护者', '保护人', '照顾者', '传统维护者']
+            },
+            'ISTP': {
+                title: '灵活的鉴赏家',
+                subtitle: '你是实用的问题解决专家',
+                description: '冷静理性，善于用双手解决问题。你喜欢了解事物的工作原理，总能找到最有效的解决方案。',
+                traits: {
+                    energy: '内向型 - 从独处中获得能量',
+                    info: '感觉型 - 关注当下和具体细节',
+                    decision: '思维型 - 重视逻辑和客观分析',
+                    lifestyle: '知觉型 - 灵活适应，保持开放'
+                },
+                color: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)',
+                keywords: ['鉴赏家', '工匠', '实用主义者', '问题解决者']
+            },
+            'ISTJ': {
+                title: '可靠的物流师',
+                subtitle: '你是值得信赖的责任承担者',
+                description: '可靠稳重，具有强烈的责任感。你重视传统和秩序，总是认真完成自己的职责。',
+                traits: {
+                    energy: '内向型 - 从独处中获得能量',
+                    info: '感觉型 - 关注当下和具体细节',
+                    decision: '思维型 - 重视逻辑和客观分析',
+                    lifestyle: '判断型 - 喜欢有序和计划'
+                },
+                color: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%)',
+                keywords: ['物流师', '可靠者', '传统主义者', '责任担当']
+            }
+        };
+        
+        const types = {
+            'ENFP': { title: '活力四射的灵感家', desc: '你是天生的激励者和创新者' },
+            'INFP': { title: '理想主义的调停者', desc: '你是充满创意的梦想追求者' },
+            'ENFJ': { title: '天生的领导者', desc: '你是有感染力的激励大师' },
+            'INFJ': { title: '睿智的提倡者', desc: '你是富有洞察力的理想主义者' },
+            'ENTP': { title: '机智的辩论家', desc: '你是充满智慧的创新思考者' },
+            'INTP': { title: '逻辑学家思想家', desc: '你是追求真理的理论建构者' },
+            'ENTJ': { title: '果断的指挥官', desc: '你是天生的战略领导者' },
+            'INTJ': { title: '独立的建筑师', desc: '你是战略性的远见卓识者' },
+            'ESFP': { title: '自由奔放的表演者', desc: '你是充满活力的生活艺术家' },
+            'ISFP': { title: '温和的冒险家', desc: '你是敏感的艺术创作者' },
+            'ESFJ': { title: '热心的领事官', desc: '你是温暖的人际关系专家' },
+            'ISFJ': { title: '守护者保护人', desc: '你是细心的照顾者' },
+            'ESTP': { title: '活力四射的企业家', desc: '你是行动派的冒险家' },
+            'ISTP': { title: '灵活的鉴赏家', desc: '你是实用的问题解决专家' },
+            'ESTJ': { title: '严谨的总经理', desc: '你是可靠的组织管理者' },
+            'ISTJ': { title: '可靠的物流师', desc: '你是值得信赖的责任承担者' }
+        };
+        
+        function answer(type) {
+            answers[currentQ] = type;
+            
+            // Update progress dots
+            updateProgress();
+            
+            if (currentQ < 3) {
+                // Hide current question
+                document.getElementById('q' + currentQ).classList.add('hidden');
+                currentQ++;
+                // Show next question
+                document.getElementById('q' + currentQ).classList.remove('hidden');
+                document.getElementById('current').textContent = currentQ + 1;
+                updateProgress();
+            } else {
+                // Show result
+                showResult();
+            }
+        }
+        
+        function updateProgress() {
+            for (let i = 0; i < 4; i++) {
+                const dot = document.getElementById('dot' + i);
+                dot.classList.remove('active', 'completed');
+                
+                if (i < currentQ) {
+                    dot.classList.add('completed');
+                } else if (i === currentQ) {
+                    dot.classList.add('active');
+                }
+            }
+        }
+        
+        function showResult() {
+            document.getElementById('q3').classList.add('hidden');
+            document.querySelector('.progress-indicator').style.display = 'none';
+            
+            const mbtiType = answers.join('');
+            const typeInfo = types[mbtiType] || types['ENFP'];
+            
+            document.getElementById('mbti-type').textContent = mbtiType;
+            document.getElementById('mbti-title').textContent = typeInfo.title;
+            document.getElementById('mbti-desc').textContent = typeInfo.desc;
+            document.getElementById('result').classList.remove('hidden');
+        }
+        
+        function restart() {
+            currentQ = 0;
+            answers = [];
+            document.getElementById('result').classList.add('hidden');
+            document.querySelector('.progress-indicator').style.display = 'flex';
+            document.getElementById('current').textContent = '1';
+            
+            // Hide all questions
+            for(let i = 0; i < 4; i++) {
+                document.getElementById('q' + i).classList.add('hidden');
+            }
+            // Show first question
+            document.getElementById('q0').classList.remove('hidden');
+            
+            // Reset progress dots
+            updateProgress();
+        }
+        
+        function generateCard() {
+            const mbtiType = answers.join('');
+            const typeData = mbtiTypes[mbtiType] || mbtiTypes['ENFP'];
+            
+            const cardHTML = `
+                <div class="share-card" id="share-card">
+                    <div class="card-header" style="background: ${typeData.color};">
+                        <div class="card-type">${mbtiType}</div>
+                        <div class="card-title">${typeData.title}</div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="card-description">${typeData.description}</div>
+                        
+                        <div class="card-keywords">
+                            ${typeData.keywords.map(keyword => `<span class="keyword-tag">${keyword}</span>`).join('')}
+                        </div>
+                        
+                        <div class="card-traits">
+                            <div class="trait-row">
+                                <span class="trait-icon">⚡️</span>
+                                <span class="trait-text">${typeData.traits.energy}</span>
+                            </div>
+                            <div class="trait-row">
+                                <span class="trait-icon">🧠</span>
+                                <span class="trait-text">${typeData.traits.info}</span>
+                            </div>
+                            <div class="trait-row">
+                                <span class="trait-icon">💭</span>
+                                <span class="trait-text">${typeData.traits.decision}</span>
+                            </div>
+                            <div class="trait-row">
+                                <span class="trait-icon">🎯</span>
+                                <span class="trait-text">${typeData.traits.lifestyle}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('card-preview').innerHTML = cardHTML;
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('card-screen').classList.remove('hidden');
+        }
+        
+        function downloadCard() {
+            const card = document.getElementById('share-card');
+            
+            // Check if html2canvas is available
+            if (typeof html2canvas !== 'undefined') {
+                html2canvas(card, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    const mbtiType = answers.join('');
+                    link.download = `mbti-${mbtiType}-result.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                });
+            } else {
+                // Fallback: show instruction to screenshot
+                alert('请长按卡片进行截图保存，或右键保存图片');
+            }
+        }
+        
+        function backToResult() {
+            document.getElementById('card-screen').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+        }
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>
