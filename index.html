@@ -1053,24 +1053,51 @@
             // Check if html2canvas is available
             if (typeof html2canvas !== 'undefined') {
                 html2canvas(card, {
-                    scale: 2,
+                    scale: 1, // 保持原始尺寸，避免变大
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
                     logging: false,
+                    dpi: 192, // 提高DPI获得更清晰的图片
                     onclone: function(clonedDoc) {
-                        // 确保克隆的文档中卡片样式正确
                         const clonedCard = clonedDoc.getElementById('share-card');
                         if (clonedCard) {
                             clonedCard.style.margin = '0';
+                            clonedCard.style.transform = 'none';
                             clonedCard.style.position = 'static';
                         }
                     }
                 }).then(canvas => {
+                    // 创建带毛玻璃背景效果的最终canvas
+                    const finalCanvas = document.createElement('canvas');
+                    const ctx = finalCanvas.getContext('2d');
+                    finalCanvas.width = 400;
+                    finalCanvas.height = 520;
+                    
+                    // 绘制渐变背景
+                    const gradient = ctx.createLinearGradient(0, 0, 400, 520);
+                    gradient.addColorStop(0, '#667eea');
+                    gradient.addColorStop(1, '#764ba2');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, 400, 520);
+                    
+                    // 计算卡片居中位置
+                    const x = (400 - 320) / 2;
+                    const y = (520 - 480) / 2;
+                    
+                    // 添加卡片阴影效果
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                    ctx.shadowBlur = 20;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 10;
+                    
+                    // 绘制卡片
+                    ctx.drawImage(canvas, x, y, 320, 480);
+                    
                     const link = document.createElement('a');
                     const mbtiType = answers.join('');
                     link.download = `mbti-${mbtiType}-result.png`;
-                    link.href = canvas.toDataURL('image/png', 1.0);
+                    link.href = finalCanvas.toDataURL('image/png', 1.0);
                     link.click();
                 });
             } else {
