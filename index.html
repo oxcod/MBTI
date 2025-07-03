@@ -4,6 +4,11 @@
     <title>MBTI精准测试 | 发现真实的你</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%25' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><circle cx='50' cy='50' r='45' fill='url(%23grad)' stroke='white' stroke-width='3'/><text x='50' y='35' font-family='Inter,sans-serif' font-size='16' font-weight='800' fill='white' text-anchor='middle'>4题</text><text x='50' y='65' font-family='Inter,sans-serif' font-size='12' font-weight='600' fill='white' text-anchor='middle'>MBTI</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23667eea;stop-opacity:1' /><stop offset='100%25' style='stop-color:%23764ba2;stop-opacity:1' /></linearGradient></defs><circle cx='50' cy='50' r='45' fill='url(%23grad)' stroke='white' stroke-width='3'/><text x='50' y='35' font-family='Inter,sans-serif' font-size='16' font-weight='800' fill='white' text-anchor='middle'>4题</text><text x='50' y='65' font-family='Inter,sans-serif' font-size='12' font-weight='600' fill='white' text-anchor='middle'>MBTI</text></svg>">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -283,24 +288,40 @@
         }
         
         .restart-btn, .share-btn {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            color: white;
-            border: none;
-            padding: var(--spacing-sm) var(--spacing-lg);
+            padding: 12px 20px;
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             flex: 1;
-            max-width: 180px;
+            max-width: 140px;
+            white-space: nowrap;
         }
         
-        .restart-btn:hover, .share-btn:hover {
+        .restart-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .restart-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .share-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        .share-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
+        
         
         .card-screen {
             background: var(--glass-bg);
@@ -436,14 +457,15 @@
         }
         
         .back-btn, .download-btn {
-            padding: var(--spacing-sm) var(--spacing-lg);
+            padding: 12px 20px;
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             flex: 1;
-            max-width: 180px;
+            max-width: 140px;
+            white-space: nowrap;
         }
         
         .back-btn {
@@ -563,7 +585,9 @@
             }
             
             .restart-btn, .share-btn {
-                max-width: 160px;
+                max-width: 130px;
+                font-size: 0.8rem;
+                padding: 10px 16px;
             }
             
             .share-card {
@@ -577,7 +601,9 @@
             }
             
             .back-btn, .download-btn {
-                max-width: 160px;
+                max-width: 130px;
+                font-size: 0.8rem;
+                padding: 10px 16px;
             }
         }
     </style>
@@ -998,15 +1024,27 @@
             // Check if html2canvas is available
             if (typeof html2canvas !== 'undefined') {
                 html2canvas(card, {
-                    scale: 2,
+                    scale: 3,
                     useCORS: true,
                     allowTaint: true,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    width: 320,
+                    height: 480,
+                    scrollX: 0,
+                    scrollY: 0
                 }).then(canvas => {
+                    // 确保输出尺寸正确
+                    const outputCanvas = document.createElement('canvas');
+                    const ctx = outputCanvas.getContext('2d');
+                    outputCanvas.width = 320 * 3;
+                    outputCanvas.height = 480 * 3;
+                    
+                    ctx.drawImage(canvas, 0, 0, outputCanvas.width, outputCanvas.height);
+                    
                     const link = document.createElement('a');
                     const mbtiType = answers.join('');
                     link.download = `mbti-${mbtiType}-result.png`;
-                    link.href = canvas.toDataURL();
+                    link.href = outputCanvas.toDataURL('image/png', 1.0);
                     link.click();
                 });
             } else {
