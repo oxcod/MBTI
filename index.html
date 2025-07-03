@@ -1050,61 +1050,15 @@
         function downloadCard() {
             const cardPreview = document.getElementById('card-preview');
             
-            // Check if html2canvas is available
             if (typeof html2canvas !== 'undefined') {
-                // 截取整个card-preview区域，包含背景
+                // 直接截图分享页面，所见即所得
                 html2canvas(cardPreview, {
-                    scale: 2, // 提高分辨率
+                    scale: 4, // 4倍分辨率，确保清晰
                     useCORS: true,
                     allowTaint: true,
-                    backgroundColor: null, // 保持透明
                     logging: false,
-                    dpi: 300, // 高DPI获得最佳清晰度
-                    onclone: function(clonedDoc) {
-                        // 确保克隆的预览区域样式正确
-                        const clonedPreview = clonedDoc.getElementById('card-preview');
-                        if (clonedPreview) {
-                            // 强制设置样式，确保毛玻璃效果显示
-                            clonedPreview.style.cssText = `
-                                margin-bottom: 32px;
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
-                                background: rgba(255, 255, 255, 0.1);
-                                border: 1px solid rgba(255, 255, 255, 0.2);
-                                border-radius: 24px;
-                                backdrop-filter: blur(20px);
-                                -webkit-backdrop-filter: blur(20px);
-                                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-                                padding: 32px;
-                                position: relative;
-                            `;
-                            
-                            // 添加背景渐变
-                            clonedPreview.style.background = 'rgba(255, 255, 255, 0.1)';
-                            
-                            // 创建背景层
-                            const bgDiv = clonedDoc.createElement('div');
-                            bgDiv.style.cssText = `
-                                position: absolute;
-                                top: 0;
-                                left: 0;
-                                right: 0;
-                                bottom: 0;
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                z-index: -1;
-                                border-radius: 24px;
-                            `;
-                            clonedPreview.insertBefore(bgDiv, clonedPreview.firstChild);
-                        }
-                        
-                        const clonedCard = clonedDoc.getElementById('share-card');
-                        if (clonedCard) {
-                            clonedCard.style.margin = '0 auto';
-                            clonedCard.style.position = 'relative';
-                            clonedCard.style.zIndex = '1';
-                        }
-                    }
+                    width: cardPreview.offsetWidth,
+                    height: cardPreview.offsetHeight
                 }).then(canvas => {
                     const link = document.createElement('a');
                     const mbtiType = answers.join('');
@@ -1113,7 +1067,6 @@
                     link.click();
                 });
             } else {
-                // Fallback: show instruction to screenshot
                 alert('请长按卡片进行截图保存，或右键保存图片');
             }
         }
