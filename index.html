@@ -25,26 +25,32 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            height: 100vh;
+            height: 100dvh; /* 动态视口高度，适配移动端 */
             color: white;
-            overflow: hidden;
+            overflow: hidden; /* 完全禁止滚动 */
             display: flex;
             align-items: center;
             justify-content: center;
             -webkit-font-smoothing: antialiased;
             cursor: default;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
         
         .container {
             max-width: 500px;
             width: 100%;
+            height: 100%;
             padding: var(--spacing-lg);
             padding-top: 100px;
+            padding-bottom: var(--spacing-lg);
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: var(--spacing-lg);
             position: relative;
+            box-sizing: border-box;
         }
         
         .page-title {
@@ -489,14 +495,90 @@
         }
         
         @media (max-width: 480px) {
-            .container { padding: var(--spacing-md); padding-top: 80px; gap: var(--spacing-lg); }
-            .page-title { font-size: 1.8rem; top: 16px; letter-spacing: 2px; padding: 8px 16px; }
-            .progress-indicator { padding: var(--spacing-sm) var(--spacing-md); gap: var(--spacing-sm); }
+            .container { 
+                max-width: 400px;
+                padding: var(--spacing-md); 
+                padding-top: 80px; 
+                padding-bottom: var(--spacing-md);
+                gap: var(--spacing-md); 
+            }
+            
+            .page-title { 
+                font-size: 1.8rem; 
+                top: 16px; 
+                letter-spacing: 2px; 
+                padding: 8px 16px; 
+            }
+            
+            .progress-indicator { 
+                padding: var(--spacing-sm) var(--spacing-md); 
+                gap: var(--spacing-sm); 
+            }
+            
             .progress-dot { width: 10px; height: 10px; }
             .progress-text { font-size: 0.8rem; }
-            .question { padding: var(--spacing-lg); }
-            .question h2 { font-size: 1.5rem; }
-            .result h1 { font-size: 2.5rem; padding: var(--spacing-sm) var(--spacing-lg); }
+            
+            .question { 
+                padding: var(--spacing-lg);
+                max-width: 100%;
+            }
+            
+            .question h2 { 
+                font-size: 1.8rem; 
+                margin-bottom: 16px; 
+            }
+            
+            .question p { 
+                font-size: 1rem; 
+                margin-bottom: var(--spacing-lg); 
+            }
+            
+            .option { 
+                padding: var(--spacing-md); 
+                margin: var(--spacing-sm) 0;
+                font-size: 1rem;
+            }
+            
+            .result { 
+                padding: var(--spacing-lg);
+                max-width: 100%;
+            }
+            
+            .result h1 { 
+                font-size: 2.5rem; 
+                padding: var(--spacing-md) var(--spacing-lg); 
+            }
+            
+            .result h2 { 
+                font-size: 1.5rem; 
+            }
+            
+            .result p { 
+                font-size: 1rem; 
+            }
+            
+            .button-group {
+                max-width: 350px;
+                width: 100%;
+            }
+            
+            .restart-btn, .share-btn {
+                max-width: 160px;
+            }
+            
+            .share-card {
+                width: 300px;
+                height: 450px;
+            }
+            
+            .card-button-group {
+                max-width: 350px;
+                width: 100%;
+            }
+            
+            .back-btn, .download-btn {
+                max-width: 160px;
+            }
         }
     </style>
 </head>
