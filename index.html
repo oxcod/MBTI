@@ -1048,23 +1048,65 @@
         }
         
         function downloadCard() {
-            const cardPreview = document.getElementById('card-preview');
+            const card = document.getElementById('share-card');
             
             if (typeof html2canvas !== 'undefined') {
-                // 直接截图分享页面，所见即所得
-                html2canvas(cardPreview, {
-                    scale: 4, // 4倍分辨率，确保清晰
+                // 创建一个临时容器，模拟分享页面的完整效果
+                const tempContainer = document.createElement('div');
+                tempContainer.style.cssText = `
+                    position: fixed;
+                    top: -9999px;
+                    left: -9999px;
+                    width: 400px;
+                    height: 520px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 40px;
+                    box-sizing: border-box;
+                `;
+                
+                // 克隆卡片
+                const cardClone = card.cloneNode(true);
+                cardClone.id = 'temp-share-card';
+                cardClone.style.cssText = `
+                    width: 320px;
+                    height: 480px;
+                    background: white;
+                    border-radius: 24px;
+                    overflow: hidden;
+                    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+                    font-family: 'Inter', sans-serif;
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    margin: 0;
+                `;
+                
+                tempContainer.appendChild(cardClone);
+                document.body.appendChild(tempContainer);
+                
+                // 截图临时容器
+                html2canvas(tempContainer, {
+                    scale: 2,
                     useCORS: true,
                     allowTaint: true,
-                    logging: false,
-                    width: cardPreview.offsetWidth,
-                    height: cardPreview.offsetHeight
+                    backgroundColor: null,
+                    logging: false
                 }).then(canvas => {
+                    // 移除临时容器
+                    document.body.removeChild(tempContainer);
+                    
                     const link = document.createElement('a');
                     const mbtiType = answers.join('');
                     link.download = `mbti-${mbtiType}-result.png`;
                     link.href = canvas.toDataURL('image/png', 1.0);
                     link.click();
+                }).catch(error => {
+                    console.error('截图失败:', error);
+                    document.body.removeChild(tempContainer);
+                    alert('下载失败，请长按卡片进行截图保存');
                 });
             } else {
                 alert('请长按卡片进行截图保存，或右键保存图片');
