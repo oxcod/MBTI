@@ -362,7 +362,7 @@
         }
         
         .card-header {
-            padding: 40px 20px;
+            padding: 30px 20px 25px 20px;
             text-align: center;
             color: white;
             position: relative;
@@ -380,10 +380,10 @@
         }
         
         .card-type {
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: 800;
-            margin-bottom: 10px;
-            letter-spacing: 3px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             position: relative;
             z-index: 1;
@@ -591,8 +591,21 @@
             }
             
             .share-card {
-                width: 300px;
-                height: 450px;
+                width: 280px;
+                height: 420px;
+            }
+            
+            .card-header {
+                padding: 25px 15px 20px 15px;
+            }
+            
+            .card-type {
+                font-size: 2.5rem;
+                margin-bottom: 6px;
+            }
+            
+            .card-title {
+                font-size: 1rem;
             }
             
             .card-button-group {
@@ -948,10 +961,20 @@
             
             const mbtiType = answers.join('');
             const typeInfo = types[mbtiType] || types['ENFP'];
+            const typeData = mbtiTypes[mbtiType] || mbtiTypes['ENFP'];
             
             document.getElementById('mbti-type').textContent = mbtiType;
             document.getElementById('mbti-title').textContent = typeInfo.title;
             document.getElementById('mbti-desc').textContent = typeInfo.desc;
+            
+            // 设置结果页的颜色主题
+            const resultElement = document.getElementById('result');
+            const mbtiTypeElement = document.getElementById('mbti-type');
+            const shareBtn = resultElement.querySelector('.share-btn');
+            
+            mbtiTypeElement.style.background = typeData.color;
+            shareBtn.style.background = typeData.color;
+            
             document.getElementById('result').classList.remove('hidden');
         }
         
@@ -1014,6 +1037,12 @@
             `;
             
             document.getElementById('card-preview').innerHTML = cardHTML;
+            
+            // 设置分享页面按钮颜色
+            const cardScreen = document.getElementById('card-screen');
+            const downloadBtn = cardScreen.querySelector('.download-btn');
+            downloadBtn.style.background = typeData.color;
+            
             document.getElementById('result').classList.add('hidden');
             document.getElementById('card-screen').classList.remove('hidden');
         }
@@ -1024,27 +1053,24 @@
             // Check if html2canvas is available
             if (typeof html2canvas !== 'undefined') {
                 html2canvas(card, {
-                    scale: 3,
+                    scale: 2,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
-                    width: 320,
-                    height: 480,
-                    scrollX: 0,
-                    scrollY: 0
+                    logging: false,
+                    onclone: function(clonedDoc) {
+                        // 确保克隆的文档中卡片样式正确
+                        const clonedCard = clonedDoc.getElementById('share-card');
+                        if (clonedCard) {
+                            clonedCard.style.margin = '0';
+                            clonedCard.style.position = 'static';
+                        }
+                    }
                 }).then(canvas => {
-                    // 确保输出尺寸正确
-                    const outputCanvas = document.createElement('canvas');
-                    const ctx = outputCanvas.getContext('2d');
-                    outputCanvas.width = 320 * 3;
-                    outputCanvas.height = 480 * 3;
-                    
-                    ctx.drawImage(canvas, 0, 0, outputCanvas.width, outputCanvas.height);
-                    
                     const link = document.createElement('a');
                     const mbtiType = answers.join('');
                     link.download = `mbti-${mbtiType}-result.png`;
-                    link.href = outputCanvas.toDataURL('image/png', 1.0);
+                    link.href = canvas.toDataURL('image/png', 1.0);
                     link.click();
                 });
             } else {
